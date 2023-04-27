@@ -27,6 +27,12 @@ class _AwesomePdfViewerState extends State<AwesomePdfViewer> {
   }
 
   @override
+  void dispose() {
+    _pdfController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Awesome PDF Viewer')),
@@ -49,54 +55,16 @@ class _AwesomePdfViewerState extends State<AwesomePdfViewer> {
             bottom: 40,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: PdfPageNumber(
-                  controller: _pdfController,
-                  builder: (_, loadingState, page, pagesCount) {
-                    if (loadingState != PdfLoadingState.success)
-                      return Container();
-                    return Center(
-                      child: Container(
-                          width: 300,
-                          height: 60,
-                          color: Colors.blue,
-                          child: FlutterSlider(
-                            values: [page.toDouble()],
-                            max: pagesCount?.toDouble(),
-                            min: 1,
-                            handlerWidth: 45,
-                            handlerHeight: 55,
-                            handler: FlutterSliderHandler(
-                                decoration: BoxDecoration(
-                                  color: Colors.black26,
-                                  border: Border.all(
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                                child: Container(
-                                  color: Colors.white,
-                                )),
-                            trackBar: const FlutterSliderTrackBar(
-                              inactiveDisabledTrackBarColor: Colors.transparent,
-                              activeDisabledTrackBarColor: Colors.transparent,
-                              inactiveTrackBar: BoxDecoration(
-                                color: Colors.transparent,
-                              ),
-                              activeTrackBar: BoxDecoration(
-                                color: Colors.transparent,
-                              ),
-                            ),
-                            onDragCompleted:
-                                (handlerIndex, lowerValue, upperValue) {
-                              _pdfController.jumpToPage(
-                                (lowerValue as double).toInt(),
-                              );
-                            },
-                            onDragging: (handlerIndex, lowerValue, upperValue) {
-                              ///TODO: Implement Logic for changing thumbnail
-                            },
-                          )),
-                    );
-                  }),
+              child: Center(
+                child: Container(
+                  height: 60,
+                  width: 300,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(6),
+                    color: Colors.blue,
+                  ),
+                ),
+              ),
             ),
           ),
         ],
