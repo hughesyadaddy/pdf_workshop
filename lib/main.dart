@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'awsome_pdf_viewer/awesome_pdf_viewer.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -40,13 +42,13 @@ class MyHomePage extends StatelessWidget {
             child: ElevatedButton(
               onPressed: () {
                 ///TODO: Implement Navigator Logic to Our AwesomePDFViewer
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(
-                //       builder: (context) => const AwesomePdfViewer(
-                //             pdfPath: 'assets/test_mass_page.pdf',
-                //           )),
-                // );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => AwesomePdfViewer(
+                            pdfPath: 'assets/test_mass_page.pdf',
+                          )),
+                );
               },
               child: const SizedBox(
                 height: 50,
@@ -62,13 +64,13 @@ class MyHomePage extends StatelessWidget {
             child: ElevatedButton(
               onPressed: () {
                 ///TODO: Implement Navigator Logic to Our AwesomePDFViewer
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(
-                //       builder: (context) => const AwesomePdfViewer(
-                //             pdfPath: 'assets/test_multi_page.pdf',
-                //           )),
-                // );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => AwesomePdfViewer(
+                            pdfPath: 'assets/test_multi_page.pdf',
+                          )),
+                );
               },
               child: const SizedBox(
                 height: 50,
@@ -84,13 +86,13 @@ class MyHomePage extends StatelessWidget {
             child: ElevatedButton(
               onPressed: () {
                 ///TODO: Implement Navigator Logic to Our AwesomePDFViewer
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(
-                //       builder: (context) => const AwesomePdfViewer(
-                //             pdfPath: 'assets/test_single_page.pdf',
-                //           )),
-                // );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => AwesomePdfViewer(
+                            pdfPath: 'assets/test_single_page.pdf',
+                          )),
+                );
               },
               child: const SizedBox(
                 height: 50,
