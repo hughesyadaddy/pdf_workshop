@@ -2,6 +2,14 @@
 
 AwesomePDFViewer is a feature-rich and highly customizable PDF viewer built using Flutter. This project is organized into six sprints, each tackling a specific part of the development process. These sprints are available as separate branches named `sprint1`, `sprint2`, and so on.
 
+## Dependencies
+
+This project uses the following packages:
+
+- [another_xlider: ^3.0.1](https://pub.dev/packages/another_xlider)
+- [pdfx: ^2.3.0](https://pub.dev/packages/pdfx)
+- [printing: ^5.10.3](https://pub.dev/packages/printing)
+
 ## Table of Contents
 
 - [Sprint Overview](#sprint-overview)
