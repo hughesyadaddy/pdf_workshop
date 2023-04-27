@@ -1,0 +1,8 @@
+version: "Apple Swift version 5.8 (swiftlang-5.8.0.124.2 clang-1403.0.22.11.100)"
+options: "07406ceb3f784e4f1ffa1583ad01dd78c3bca7dfb651a48339225cbd40df63df"
+build_start_time: [1682460240, 824920000]
+build_end_time: [1682460240, 884374000]
+inputs:
+  "/Users/alexhughes/.pub-cache/hosted/pub.dev/device_info_plus_macos-3.0.0/macos/Classes/CwlSysctl.swift": !private [1680973332, 808930586]
+  "/Users/alexhughes/.pub-cache/hosted/pub.dev/device_info_plus_macos-3.0.0/macos/Classes/DeviceInfoPlusMacosPlugin.swift": !private [1680973332, 810989944]
+  "/Users/alexhughes/.pub-cache/hosted/pub.dev/device_info_plus_macos-3.0.0/macos/Classes/SystemUUID.swift": !private [1680973332, 813088935]

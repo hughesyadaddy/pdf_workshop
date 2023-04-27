@@ -1,0 +1,23 @@
+{
+  'version': 0,
+  'use-external-names': 'false',
+  'case-sensitive': 'false',
+  'roots': [{
+    'type': 'directory',
+    'name': "/Users/alexhughes/Desktop/awesome_pdf_viewer/example/build/macos/Build/Products/Debug/pdfx/pdfx.framework/Modules"
+    'contents': [{
+      'type': 'file',
+      'name': "module.modulemap",
+      'external-contents': "/Users/alexhughes/Desktop/awesome_pdf_viewer/example/build/macos/Build/Intermediates.noindex/Pods.build/Debug/pdfx.build/unextended-module.modulemap",
+    }]
+    },
+    {
+    'type': 'directory',
+    'name': "/Users/alexhughes/Desktop/awesome_pdf_viewer/example/build/macos/Build/Products/Debug/pdfx/pdfx.framework/Headers"
+    'contents': [{
+      'type': 'file',
+      'name': "pdfx-Swift.h",
+      'external-contents': "/Users/alexhughes/Desktop/awesome_pdf_viewer/example/build/macos/Build/Intermediates.noindex/Pods.build/Debug/pdfx.build/unextended-interface-header.h",
+    }]
+    }]
+}

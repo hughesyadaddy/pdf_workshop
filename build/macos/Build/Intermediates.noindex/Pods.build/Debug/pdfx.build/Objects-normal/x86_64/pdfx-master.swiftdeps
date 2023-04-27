@@ -1,0 +1,9 @@
+version: "Apple Swift version 5.8 (swiftlang-5.8.0.124.2 clang-1403.0.22.11.100)"
+options: "7ea6672bbb71e81a6bd8089871bc89f95224ac04c541034c09c5c8fb63dae733"
+build_start_time: [1682460240, 824902000]
+build_end_time: [1682460240, 884364000]
+inputs:
+  "/Users/alexhughes/.pub-cache/hosted/pub.dev/pdfx-2.3.0/macos/Classes/Document.swift": !private [1680973335, 368883072]
+  "/Users/alexhughes/.pub-cache/hosted/pub.dev/pdfx-2.3.0/macos/Classes/Hooks.swift": !private [1680973335, 368335670]
+  "/Users/alexhughes/.pub-cache/hosted/pub.dev/pdfx-2.3.0/macos/Classes/Resources.swift": !private [1680973335, 367493570]
+  "/Users/alexhughes/.pub-cache/hosted/pub.dev/pdfx-2.3.0/macos/Classes/SwiftPdfxPlugin.swift": !private [1680973335, 370308757]
