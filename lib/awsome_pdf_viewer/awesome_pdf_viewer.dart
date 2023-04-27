@@ -5,14 +5,13 @@ import 'package:another_xlider/models/handler.dart';
 import 'package:another_xlider/models/trackbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:pdfx/pdfx.dart';
 
 class AwesomePdfViewer extends StatefulWidget {
   AwesomePdfViewer({super.key, required this.pdfPath});
 
-  String pdfPath;
+  final String pdfPath;
 
   @override
   State<AwesomePdfViewer> createState() => _AwesomePdfViewerState();
@@ -88,6 +87,7 @@ class _AwesomePdfViewerState extends State<AwesomePdfViewer> {
   void dispose() {
     _pdfController.dispose();
     _pdfControllerSlider.dispose();
+
     super.dispose();
   }
 
@@ -157,7 +157,7 @@ class _AwesomePdfViewerState extends State<AwesomePdfViewer> {
                                             ),
                                     );
                                   },
-                                  itemCount: 10,
+                                  itemCount: _thumbnailImageList.length,
                                   separatorBuilder: (context, index) =>
                                       const SizedBox(
                                     width: 5,
