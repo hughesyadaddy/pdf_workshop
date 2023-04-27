@@ -21,6 +21,8 @@ class AwesomePdfViewer extends StatefulWidget {
 class _AwesomePdfViewerState extends State<AwesomePdfViewer> {
   List<PdfPageImage> _thumbnailImageList = [];
   late final PdfController _pdfController;
+  late final PdfController _pdfControllerSlider;
+
   List<double> linspace(
     double start,
     double stop, {
@@ -73,6 +75,11 @@ class _AwesomePdfViewerState extends State<AwesomePdfViewer> {
   void initState() {
     _pdfController =
         PdfController(document: PdfDocument.openAsset(widget.pdfPath));
+    _pdfControllerSlider = PdfController(
+      document: PdfDocument.openAsset(
+        widget.pdfPath,
+      ),
+    );
     _generateSliderImages(window.physicalSize.width);
     super.initState();
   }
@@ -80,6 +87,7 @@ class _AwesomePdfViewerState extends State<AwesomePdfViewer> {
   @override
   void dispose() {
     _pdfController.dispose();
+    _pdfControllerSlider.dispose();
     super.dispose();
   }
 
@@ -164,15 +172,60 @@ class _AwesomePdfViewerState extends State<AwesomePdfViewer> {
                                   handlerWidth: 45,
                                   handlerHeight: 55,
                                   handler: FlutterSliderHandler(
-                                      decoration: BoxDecoration(
-                                        color: Colors.black26,
-                                        border: Border.all(
-                                          color: Colors.grey,
-                                        ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.black26,
+                                      border: Border.all(
+                                        color: Colors.grey,
                                       ),
-                                      child: Container(
-                                        color: Colors.white,
-                                      )),
+                                    ),
+                                    child: IgnorePointer(
+                                      child: PdfView(
+                                        builders: PdfViewBuilders<
+                                            DefaultBuilderOptions>(
+                                          options:
+                                              const DefaultBuilderOptions(),
+                                          pageBuilder: (
+                                            context,
+                                            pageImage,
+                                            index,
+                                            document,
+                                          ) =>
+                                              PhotoViewGalleryPageOptions(
+                                            imageProvider: PdfPageImageProvider(
+                                              pageImage,
+                                              index,
+                                              document.id,
+                                            ),
+                                            minScale: PhotoViewComputedScale
+                                                    .contained *
+                                                1,
+                                            maxScale: PhotoViewComputedScale
+                                                    .contained *
+                                                2,
+                                            initialScale: PhotoViewComputedScale
+                                                    .contained *
+                                                1.0,
+                                            heroAttributes:
+                                                PhotoViewHeroAttributes(
+                                              tag: '${document.id}-$index',
+                                            ),
+                                          ),
+                                          documentLoaderBuilder: (_) =>
+                                              const Center(
+                                            child: CupertinoActivityIndicator(),
+                                          ),
+                                          pageLoaderBuilder: (_) =>
+                                              const Center(
+                                            child: CupertinoActivityIndicator(),
+                                          ),
+                                          errorBuilder: (_, error) => Center(
+                                            child: Text(error.toString()),
+                                          ),
+                                        ),
+                                        controller: _pdfControllerSlider,
+                                      ),
+                                    ),
+                                  ),
                                   trackBar: const FlutterSliderTrackBar(
                                     inactiveDisabledTrackBarColor:
                                         Colors.transparent,
@@ -193,7 +246,9 @@ class _AwesomePdfViewerState extends State<AwesomePdfViewer> {
                                   },
                                   onDragging:
                                       (handlerIndex, lowerValue, upperValue) {
-                                    ///TODO: Implement Logic for changing thumbnail
+                                    _pdfControllerSlider.jumpToPage(
+                                      (lowerValue as double).toInt(),
+                                    );
                                   },
                                 ),
                             ],
