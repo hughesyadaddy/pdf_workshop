@@ -130,63 +130,131 @@ This sprint is dedicated to connecting the scroll bar functionality to the PDF v
 
 Branch: `sprint3`
 
+We need to utilize a beautiful widget from PDFX called PdfPageNumber.
+
+```dart
+PdfPageNumber(
+  controller: _pdfController,
+  builder: (_, loadingState, page, pagesCount) {
+    if (loadingState != PdfLoadingState.success) {
+      return Container();
+    }
+    return Container(
+      height: 60,
+      width: 300, //this will be changed later
+      color: Colors.blue,
+    );
+  }),
+```
+
+We want to import the FlutterSlider and see how it responds.
+
+```dart
+FlutterSlider(
+    values: [page.toDouble()],
+    max: pagesCount?.toDouble(),
+    min: 1,
+    onDragCompleted:
+        (handlerIndex, lowerValue, upperValue) {
+      //Implement Jump To Page Function
+      _pdfController.jumpToPage(
+        (lowerValue as double).toInt(),
+      );
+    },
+    onDragging: (handlerIndex, lowerValue, upperValue) {
+      ///TODO: Implement Logic for changing thumbnail
+    },
+  ),
+```
+
+Next we want to adjust the trackbar and handler to bring to a thumbnail look
+
+```dart
+handlerWidth: 45,
+handlerHeight: 55,
+handler: FlutterSliderHandler(
+    decoration: BoxDecoration(
+      color: Colors.black26,
+      border: Border.all(
+        color: Colors.grey,
+      ),
+    ),
+    child: Container(
+      color: Colors.white,
+    )),
+trackBar: const FlutterSliderTrackBar(
+  inactiveDisabledTrackBarColor: Colors.transparent,
+  activeDisabledTrackBarColor: Colors.transparent,
+  inactiveTrackBar: BoxDecoration(
+    color: Colors.transparent,
+  ),
+  activeTrackBar: BoxDecoration(
+    color: Colors.transparent,
+  ),
+),
+```
+
+And bring it all together with this.
+
 ```dart
 Positioned(
   left: 0,
   right: 0,
   bottom: 40,
-  child: Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 20),
-    child: PdfPageNumber(
-        controller: _pdfController,
-        builder: (_, loadingState, page, pagesCount) {
-          if (loadingState != PdfLoadingState.success)
-            return Container();
-          return Center(
-            child: Container(
-                width: 300,
-                height: 60,
-                color: Colors.blue,
-                child: FlutterSlider(
-                  values: [page.toDouble()],
-                  max: pagesCount?.toDouble(),
-                  min: 1,
-                  handlerWidth: 45,
-                  handlerHeight: 55,
-                  handler: FlutterSliderHandler(
-                      decoration: BoxDecoration(
-                        color: Colors.black26,
-                        border: Border.all(
-                          color: Colors.grey,
-                        ),
+  child: Center(
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: PdfPageNumber(
+          controller: _pdfController,
+          builder: (_, loadingState, page, pagesCount) {
+            if (loadingState != PdfLoadingState.success) {
+              return Container();
+            }
+            return Container(
+              height: 60,
+              width: 300, //this will be changed later
+              color: Colors.blue,
+              child: FlutterSlider(
+                values: [page.toDouble()],
+                max: pagesCount?.toDouble(),
+                min: 1,
+                handlerWidth: 45,
+                handlerHeight: 55,
+                handler: FlutterSliderHandler(
+                    decoration: BoxDecoration(
+                      color: Colors.black26,
+                      border: Border.all(
+                        color: Colors.grey,
                       ),
-                      child: Container(
-                        color: Colors.white,
-                      )),
-                  trackBar: const FlutterSliderTrackBar(
-                    inactiveDisabledTrackBarColor: Colors.transparent,
-                    activeDisabledTrackBarColor: Colors.transparent,
-                    inactiveTrackBar: BoxDecoration(
-                      color: Colors.transparent,
                     ),
-                    activeTrackBar: BoxDecoration(
-                      color: Colors.transparent,
-                    ),
+                    child: Container(
+                      color: Colors.white,
+                    )),
+                trackBar: const FlutterSliderTrackBar(
+                  inactiveDisabledTrackBarColor: Colors.transparent,
+                  activeDisabledTrackBarColor: Colors.transparent,
+                  inactiveTrackBar: BoxDecoration(
+                    color: Colors.transparent,
                   ),
-                  onDragCompleted:
-                      (handlerIndex, lowerValue, upperValue) {
-                    _pdfController.jumpToPage(
-                      (lowerValue as double).toInt(),
-                    );
-                  },
-                  onDragging: (handlerIndex, lowerValue, upperValue) {
-                    ///TODO: Implement Logic for changing thumbnail
-                  },
-                )),
-          );
-        }),
+                  activeTrackBar: BoxDecoration(
+                    color: Colors.transparent,
+                  ),
+                ),
+                onDragCompleted:
+                    (handlerIndex, lowerValue, upperValue) {
+                  _pdfController.jumpToPage(
+                    (lowerValue as double).toInt(),
+                  );
+                },
+                onDragging: (handlerIndex, lowerValue, upperValue) {
+                  ///TODO: Implement Logic for changing thumbnail
+                },
+              ),
+            );
+          }),
+    ),
   ),
-),
+  )
 ```
 
 ### Sprint 4: Add thumbnail widgets to scrollbar
@@ -282,57 +350,173 @@ In the fifth sprint, we will generate thumbnails for the scroll bar using the li
 
 Branch: `sprint5`
 
+First lets create a list.
+
 ```dart
-List<double> linspace(
-double start,
-double stop, {
-int num = 10,
-}) {
-if (num <= 0) {
-    throw ('num need be igual or greater than 0');
+List<PdfPageImage> _thumbnailImageList = [];
+```
+
+Second we will create a function in init
+
+```dart
+@override
+void initState() {
+  _pdfController =
+      PdfController(document: PdfDocument.openAsset(widget.pdfPath));
+
+  _generateSliderImages(window.physicalSize.width);
+  super.initState();
 }
+```
 
-double delta;
-if (num > 1) {
-    delta = (stop - start) / (num - 1);
-} else {
-    delta = (stop - start) / num;
-}
+```dart
 
-final space = List<double>.generate(num, (i) => start + delta * i);
+  List<double> linspace(
+    double start,
+    double stop, {
+    int num = 10,
+  }) {
+    if (num <= 0) {
+      throw ('num need be igual or greater than 0');
+    }
 
-return space;
-}
-  // Your linspace implementation
-}
+    double delta;
+    if (num > 1) {
+      delta = (stop - start) / (num - 1);
+    } else {
+      delta = (stop - start) / num;
+    }
 
+    final space = List<double>.generate(num, (i) => start + delta * i);
 
-Future<void> _generateSliderImages(double width) async {
-final imageList = <PdfPageImage>[];
-final document = await PdfDocument.openAsset(widget.pdfPath);
-final pagesCount = document.pagesCount;
-final thumbnailCount = pagesCount >= (width / 130).round()
-    ? (width / 130).round()
-    : pagesCount;
-final evenlySpacedArrayPoints = linspace(
-    1,
-    pagesCount.toDouble(),
-    num: thumbnailCount,
-);
+    return space;
+  }
 
-for (final invidualPoint in evenlySpacedArrayPoints) {
-    final page = await document.getPage(invidualPoint.round());
-    final pageImage =
-        await page.render(width: page.width / 20, height: page.height / 20);
-    await page.close();
-    imageList.add(pageImage!);
-}
-await document.close();
+  Future<void> _generateSliderImages(double width) async {
+    final imageList = <PdfPageImage>[];
+    final document = await PdfDocument.openAsset(widget.pdfPath);
+    final pagesCount = document.pagesCount;
+    final thumbnailCount = pagesCount >= (width / 130).round()
+        ? (width / 130).round()
+        : pagesCount;
+    final evenlySpacedArrayPoints = linspace(
+      1,
+      pagesCount.toDouble(),
+      num: thumbnailCount,
+    );
 
-setState(() {
-    _thumbnailImageList = imageList;
-});
-}
+    for (final invidualPoint in evenlySpacedArrayPoints) {
+      final page = await document.getPage(invidualPoint.round());
+      final pageImage =
+          await page.render(width: page.width / 20, height: page.height / 20);
+      await page.close();
+      imageList.add(pageImage!);
+    }
+    await document.close();
+
+    setState(() {
+      _thumbnailImageList = imageList;
+    });
+  }
+```
+
+Now we will change the PDF Page Number to work smoothly with the generated list.
+
+```dart
+ PdfPageNumber(
+  controller: _pdfController,
+  builder: (_, loadingState, page, pagesCount) {
+    if (pagesCount == null || _thumbnailImageList.isEmpty) {
+      return Container(
+        height: 60,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(6),
+          color: Colors.blue,
+        ),
+      );
+    }
+    return Center(
+      child: Container(
+          width: _thumbnailImageList.length * 37,
+          height: 60,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(6),
+            color: Colors.blue,
+          ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              SizedBox(
+                height: 40,
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  scrollDirection: Axis.horizontal,
+                  itemBuilder: (context, index) {
+                    return Container(
+                      width: 30,
+                      color: Colors.white,
+                      child: _thumbnailImageList.isEmpty ||
+                              _thumbnailImageList.length <=
+                                  index
+                          ? const CupertinoActivityIndicator()
+                          : Image(
+                              image: MemoryImage(
+                                  _thumbnailImageList[index]
+                                      .bytes),
+                            ),
+                    );
+                  },
+                  itemCount: 10,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(
+                    width: 5,
+                  ),
+                ),
+              ),
+              if (pagesCount != 1)
+                FlutterSlider(
+                  values: [page.toDouble()],
+                  max: pagesCount.toDouble(),
+                  min: 1,
+                  handlerWidth: 45,
+                  handlerHeight: 55,
+                  handler: FlutterSliderHandler(
+                      decoration: BoxDecoration(
+                        color: Colors.black26,
+                        border: Border.all(
+                          color: Colors.grey,
+                        ),
+                      ),
+                      child: Container(
+                        color: Colors.white,
+                      )),
+                  trackBar: const FlutterSliderTrackBar(
+                    inactiveDisabledTrackBarColor:
+                        Colors.transparent,
+                    activeDisabledTrackBarColor:
+                        Colors.transparent,
+                    inactiveTrackBar: BoxDecoration(
+                      color: Colors.transparent,
+                    ),
+                    activeTrackBar: BoxDecoration(
+                      color: Colors.transparent,
+                    ),
+                  ),
+                  onDragCompleted:
+                      (handlerIndex, lowerValue, upperValue) {
+                    _pdfController.jumpToPage(
+                      (lowerValue as double).toInt(),
+                    );
+                  },
+                  onDragging:
+                      (handlerIndex, lowerValue, upperValue) {
+                    //Add handler functionality
+                  },
+                ),
+            ],
+          )),
+    );
+  }),
 ```
 
 ### Sprint 6: Add Slider Handle thumbnail preview of the PDF on drag function
