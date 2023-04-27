@@ -25,6 +25,12 @@ class _AwesomePdfViewerState extends State<AwesomePdfViewer> {
   }
 
   @override
+  void dispose() {
+    _pdfController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Awesome PDF Viewer')),
@@ -35,8 +41,7 @@ class _AwesomePdfViewerState extends State<AwesomePdfViewer> {
                 const Center(child: CupertinoActivityIndicator()),
             pageLoaderBuilder: (_) =>
                 const Center(child: CupertinoActivityIndicator()),
-            errorBuilder: (_, error) =>
-                Center(child: Text(error.toString())),
+            errorBuilder: (_, error) => Center(child: Text(error.toString())),
           ),
           controller: _pdfController),
     );
