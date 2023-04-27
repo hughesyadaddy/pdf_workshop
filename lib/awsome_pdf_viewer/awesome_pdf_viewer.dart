@@ -28,36 +28,17 @@ class _AwesomePdfViewerState extends State<AwesomePdfViewer> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Awesome PDF Viewer')),
-      body: Stack(
-        children: [
-          PdfView(
-              builders: PdfViewBuilders<DefaultBuilderOptions>(
-                options: const DefaultBuilderOptions(),
-                documentLoaderBuilder: (_) =>
-                    const Center(child: CupertinoActivityIndicator()),
-                pageLoaderBuilder: (_) =>
-                    const Center(child: CupertinoActivityIndicator()),
-                errorBuilder: (_, error) =>
-                    Center(child: Text(error.toString())),
-              ),
-              controller: _pdfController),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 40,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Center(
-                child: Container(
-                  width: 300,
-                  height: 60,
-                  color: Colors.blue,
-                ),
-              ),
-            ),
+      body: PdfView(
+          builders: PdfViewBuilders<DefaultBuilderOptions>(
+            options: const DefaultBuilderOptions(),
+            documentLoaderBuilder: (_) =>
+                const Center(child: CupertinoActivityIndicator()),
+            pageLoaderBuilder: (_) =>
+                const Center(child: CupertinoActivityIndicator()),
+            errorBuilder: (_, error) =>
+                Center(child: Text(error.toString())),
           ),
-        ],
-      ),
+          controller: _pdfController),
     );
   }
 }
