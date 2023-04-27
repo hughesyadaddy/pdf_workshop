@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:another_xlider/another_xlider.dart';
 import 'package:another_xlider/models/handler.dart';
 import 'package:another_xlider/models/trackbar.dart';
@@ -17,13 +19,68 @@ class AwesomePdfViewer extends StatefulWidget {
 }
 
 class _AwesomePdfViewerState extends State<AwesomePdfViewer> {
+  List<PdfPageImage> _thumbnailImageList = [];
   late final PdfController _pdfController;
+  List<double> linspace(
+    double start,
+    double stop, {
+    int num = 10,
+  }) {
+    if (num <= 0) {
+      throw ('num need be igual or greater than 0');
+    }
+
+    double delta;
+    if (num > 1) {
+      delta = (stop - start) / (num - 1);
+    } else {
+      delta = (stop - start) / num;
+    }
+
+    final space = List<double>.generate(num, (i) => start + delta * i);
+
+    return space;
+  }
+
+  Future<void> _generateSliderImages(double width) async {
+    final imageList = <PdfPageImage>[];
+    final document = await PdfDocument.openAsset(widget.pdfPath);
+    final pagesCount = document.pagesCount;
+    final thumbnailCount = pagesCount >= (width / 130).round()
+        ? (width / 130).round()
+        : pagesCount;
+    final evenlySpacedArrayPoints = linspace(
+      1,
+      pagesCount.toDouble(),
+      num: thumbnailCount,
+    );
+
+    for (final invidualPoint in evenlySpacedArrayPoints) {
+      final page = await document.getPage(invidualPoint.round());
+      final pageImage =
+          await page.render(width: page.width / 20, height: page.height / 20);
+      await page.close();
+      imageList.add(pageImage!);
+    }
+    await document.close();
+
+    setState(() {
+      _thumbnailImageList = imageList;
+    });
+  }
 
   @override
   void initState() {
     _pdfController =
         PdfController(document: PdfDocument.openAsset(widget.pdfPath));
+    _generateSliderImages(window.physicalSize.width);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _pdfController.dispose();
+    super.dispose();
   }
 
   @override
@@ -52,11 +109,18 @@ class _AwesomePdfViewerState extends State<AwesomePdfViewer> {
               child: PdfPageNumber(
                   controller: _pdfController,
                   builder: (_, loadingState, page, pagesCount) {
-                    if (loadingState != PdfLoadingState.success)
-                      return Container();
+                    if (pagesCount == null || _thumbnailImageList.isEmpty) {
+                      return Container(
+                        height: 60,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(6),
+                          color: Colors.blue,
+                        ),
+                      );
+                    }
                     return Center(
                       child: Container(
-                          width: 300,
+                          width: _thumbnailImageList.length * 37,
                           height: 60,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(6),
@@ -74,6 +138,15 @@ class _AwesomePdfViewerState extends State<AwesomePdfViewer> {
                                     return Container(
                                       width: 30,
                                       color: Colors.white,
+                                      child: _thumbnailImageList.isEmpty ||
+                                              _thumbnailImageList.length <=
+                                                  index
+                                          ? const CupertinoActivityIndicator()
+                                          : Image(
+                                              image: MemoryImage(
+                                                  _thumbnailImageList[index]
+                                                      .bytes),
+                                            ),
                                     );
                                   },
                                   itemCount: 10,
@@ -86,7 +159,7 @@ class _AwesomePdfViewerState extends State<AwesomePdfViewer> {
                               if (pagesCount != 1)
                                 FlutterSlider(
                                   values: [page.toDouble()],
-                                  max: pagesCount?.toDouble(),
+                                  max: pagesCount.toDouble(),
                                   min: 1,
                                   handlerWidth: 45,
                                   handlerHeight: 55,
