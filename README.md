@@ -613,6 +613,35 @@ During this sprint, we address the issue of the PDF viewer not resizing correctl
 
 Branch: `sprint5`
 
+Add with WidgetsBindingObserver to the class.
+
+Change the init and dispose classes.
+
+```dart
+@override
+void initState() {
+  WidgetsBinding.instance.addObserver(this);
+  _pdfController =
+      PdfController(document: PdfDocument.openAsset(widget.pdfPath));
+  _pdfControllerSlider = PdfController(
+    document: PdfDocument.openAsset(
+      widget.pdfPath,
+    ),
+  );
+  _generateSliderImages(window.physicalSize.width);
+  super.initState();
+}
+
+@override
+void dispose() {
+  _pdfController.dispose();
+  _pdfControllerSlider.dispose();
+  _debouncer.cancel();
+  WidgetsBinding.instance.removeObserver(this);
+  super.dispose();
+}
+```
+
 ```dart
 final _debouncer = Debouncer(delay: const Duration(milliseconds: 500));
 
