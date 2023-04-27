@@ -189,11 +189,98 @@ Positioned(
 ),
 ```
 
-### Sprint 4: Generate the thumbnails for the Scroll Bar
+### Sprint 4: Add thumbnail widgets to scrollbar
 
-In the fourth sprint, we will generate thumbnails for the scroll bar using the linspace equation. This will provide users with a preview of evenly spaced pages, including the first and last page of the PDF document.
+This sprint is dedicated to adding thumbnail placeholders to the scrollbar.
 
 Branch: `sprint4`
+
+```dart
+PdfPageNumber(
+  controller: _pdfController,
+  builder: (_, loadingState, page, pagesCount) {
+    if (loadingState != PdfLoadingState.success)
+      return Container();
+    return Center(
+      child: Container(
+          width: 300,
+          height: 60,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(6),
+            color: Colors.blue,
+          ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              SizedBox(
+                height: 40,
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  scrollDirection: Axis.horizontal,
+                  itemBuilder: (context, index) {
+                    return Container(
+                      width: 30,
+                      color: Colors.white,
+                    );
+                  },
+                  itemCount: 10,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(
+                    width: 5,
+                  ),
+                ),
+              ),
+              if (pagesCount != 1)
+                FlutterSlider(
+                  values: [page.toDouble()],
+                  max: pagesCount?.toDouble(),
+                  min: 1,
+                  handlerWidth: 45,
+                  handlerHeight: 55,
+                  handler: FlutterSliderHandler(
+                      decoration: BoxDecoration(
+                        color: Colors.black26,
+                        border: Border.all(
+                          color: Colors.grey,
+                        ),
+                      ),
+                      child: Container(
+                        color: Colors.white,
+                      )),
+                  trackBar: const FlutterSliderTrackBar(
+                    inactiveDisabledTrackBarColor:
+                        Colors.transparent,
+                    activeDisabledTrackBarColor:
+                        Colors.transparent,
+                    inactiveTrackBar: BoxDecoration(
+                      color: Colors.transparent,
+                    ),
+                    activeTrackBar: BoxDecoration(
+                      color: Colors.transparent,
+                    ),
+                  ),
+                  onDragCompleted:
+                      (handlerIndex, lowerValue, upperValue) {
+                    _pdfController.jumpToPage(
+                      (lowerValue as double).toInt(),
+                    );
+                  },
+                  onDragging:
+                      (handlerIndex, lowerValue, upperValue) {
+                    ///TODO: Implement Logic for changing thumbnail
+                  },
+                ),
+            ],
+          )),
+    );
+  }),
+```
+
+### Sprint 5: Generate the thumbnails for the Scroll Bar
+
+In the fifth sprint, we will generate thumbnails for the scroll bar using the linspace equation. This will provide users with a preview of evenly spaced pages, including the first and last page of the PDF document.
+
+Branch: `sprint5`
 
 ```dart
 List<double> linspace(
@@ -248,7 +335,95 @@ setState(() {
 }
 ```
 
-### Sprint 5: Realize the Issue with window changing sizes and add debouncer functionality
+### Sprint 6: Add Slider Handle thumbnail preview of the PDF on drag function
+
+During this sprint, we address the issue of the PDF slider not showing the current page when sliding the handler. We will add this functionality using a seperate PDFView.
+
+Branch: `sprint5`
+
+```dart
+late final PdfController _pdfControllerSlider;
+
+ FlutterSlider(
+  values: [page.toDouble()],
+  max: pagesCount.toDouble(),
+  min: 1,
+  handlerWidth: 45,
+  handlerHeight: 55,
+  handler: FlutterSliderHandler(
+    decoration: BoxDecoration(
+      color: Colors.black26,
+      border: Border.all(
+        color: Colors.grey,
+      ),
+    ),
+    child: PdfView(
+      builders:
+          PdfViewBuilders<DefaultBuilderOptions>(
+        options: const DefaultBuilderOptions(),
+        pageBuilder: (
+          context,
+          pageImage,
+          index,
+          document,
+        ) =>
+            PhotoViewGalleryPageOptions(
+          imageProvider: PdfPageImageProvider(
+            pageImage,
+            index,
+            document.id,
+          ),
+          minScale:
+              PhotoViewComputedScale.contained * 1,
+          maxScale:
+              PhotoViewComputedScale.contained * 2,
+          initialScale:
+              PhotoViewComputedScale.contained *
+                  1.0,
+          heroAttributes: PhotoViewHeroAttributes(
+            tag: '${document.id}-$index',
+          ),
+        ),
+        documentLoaderBuilder: (_) => const Center(
+          child: CupertinoActivityIndicator(),
+        ),
+        pageLoaderBuilder: (_) => const Center(
+          child: CupertinoActivityIndicator(),
+        ),
+        errorBuilder: (_, error) => Center(
+          child: Text(error.toString()),
+        ),
+      ),
+      controller: _pdfControllerSlider,
+    ),
+  ),
+  trackBar: const FlutterSliderTrackBar(
+    inactiveDisabledTrackBarColor:
+        Colors.transparent,
+    activeDisabledTrackBarColor: Colors.transparent,
+    inactiveTrackBar: BoxDecoration(
+      color: Colors.transparent,
+    ),
+    activeTrackBar: BoxDecoration(
+      color: Colors.transparent,
+    ),
+  ),
+  onDragCompleted:
+      (handlerIndex, lowerValue, upperValue) {
+    _pdfController.jumpToPage(
+      (lowerValue as double).toInt(),
+    );
+  },
+  onDragging:
+      (handlerIndex, lowerValue, upperValue) {
+    _pdfControllerSlider.jumpToPage(
+      (lowerValue as double).toInt(),
+    );
+  },
+)
+```
+
+### Sprint 7: Realize the Issue with window changing sizes and add debouncer functionality
 
 During this sprint, we address the issue of the PDF viewer not resizing correctly when the window size changes. We will add debouncer functionality to handle these resizing events properly.
 
@@ -288,7 +463,7 @@ class Debouncer {
 }
 ```
 
-### Sprint 6: Add print & sharing functionality
+### Sprint 8: Add print & sharing functionality
 
 In the final sprint, we will implement the print and sharing functionality, allowing users to print the PDF document or share it via different platforms.
 
