@@ -111,7 +111,7 @@ children: [
         child: Center(
         child: Container(
             height: 60,
-            width: _thumbnailImageList.length * 37,
+            width: 300, //This will be responsive to the PDF
             decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(6),
             color: Colors.blue,
