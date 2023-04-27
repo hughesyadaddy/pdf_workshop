@@ -5,23 +5,26 @@ import 'package:another_xlider/models/handler.dart';
 import 'package:another_xlider/models/trackbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:pdfx/pdfx.dart';
+
+import 'dobouncer.dart';
 
 class AwesomePdfViewer extends StatefulWidget {
   AwesomePdfViewer({super.key, required this.pdfPath});
 
-  String pdfPath;
+  final String pdfPath;
 
   @override
   State<AwesomePdfViewer> createState() => _AwesomePdfViewerState();
 }
 
-class _AwesomePdfViewerState extends State<AwesomePdfViewer> {
+class _AwesomePdfViewerState extends State<AwesomePdfViewer>
+    with WidgetsBindingObserver {
   List<PdfPageImage> _thumbnailImageList = [];
   late final PdfController _pdfController;
   late final PdfController _pdfControllerSlider;
+  final _debouncer = Debouncer(delay: const Duration(milliseconds: 500));
 
   List<double> linspace(
     double start,
@@ -73,6 +76,7 @@ class _AwesomePdfViewerState extends State<AwesomePdfViewer> {
 
   @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
     _pdfController =
         PdfController(document: PdfDocument.openAsset(widget.pdfPath));
     _pdfControllerSlider = PdfController(
@@ -88,7 +92,19 @@ class _AwesomePdfViewerState extends State<AwesomePdfViewer> {
   void dispose() {
     _pdfController.dispose();
     _pdfControllerSlider.dispose();
+    _debouncer.cancel();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  @override
+  void didChangeMetrics() {
+    _debouncer.run(
+      () => _generateSliderImages(
+        WidgetsBinding.instance.window.physicalSize.width,
+      ),
+    );
+    super.didChangeMetrics();
   }
 
   @override
@@ -157,7 +173,7 @@ class _AwesomePdfViewerState extends State<AwesomePdfViewer> {
                                             ),
                                     );
                                   },
-                                  itemCount: 10,
+                                  itemCount: _thumbnailImageList.length,
                                   separatorBuilder: (context, index) =>
                                       const SizedBox(
                                     width: 5,
