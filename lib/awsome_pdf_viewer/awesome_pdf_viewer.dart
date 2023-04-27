@@ -5,6 +5,8 @@ import 'package:another_xlider/models/handler.dart';
 import 'package:another_xlider/models/trackbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:printing/printing.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:pdfx/pdfx.dart';
 
@@ -110,7 +112,31 @@ class _AwesomePdfViewerState extends State<AwesomePdfViewer>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Awesome PDF Viewer')),
+      appBar: AppBar(
+        title: const Text('Awesome PDF Viewer'),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              final byteData = await rootBundle.load(widget.pdfPath);
+              final bytes = byteData.buffer.asUint8List();
+              await Printing.sharePdf(
+                bytes: bytes,
+              );
+            },
+            icon: const Icon(Icons.ios_share),
+          ),
+          IconButton(
+            onPressed: () async {
+              final byteData = await rootBundle.load(widget.pdfPath);
+              final bytes = byteData.buffer.asUint8List();
+              await Printing.layoutPdf(
+                onLayout: (_) async => bytes,
+              );
+            },
+            icon: const Icon(Icons.print),
+          )
+        ],
+      ),
       body: Stack(
         children: [
           PdfView(
